@@ -24,7 +24,7 @@ When you're done: `deactivate`
 
 ## Building your bot
 
-Modify the `main.py` script however you like to make this bot your own. The `/examples` director has `firehose-bot.py` and `cron-bot.py` - if you want your bot to respond to some kind of event live, you want firehose-bot. If instead you want to do something on a timer, use cron-bot. You might also want to do something that's kind of both (i.e. it listens to the websocket to index/aggregate data and then does something on a schedule, like say what the sentiment is for a given search term)
+Modify the `main.py` script however you like to make this bot your own. The `/examples` directory has `firehose-bot.py` and `cron-bot.py` - if you want your bot to respond to some kind of event live, you want firehose-bot. If instead you want to do something on a timer, use cron-bot. You might also want to do something that's kind of both (i.e. it listens to the websocket to index/aggregate data and then does something on a schedule, like say what the sentiment is for a given search term)
 
 ## Running your bot
 
