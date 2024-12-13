@@ -4,7 +4,7 @@ from apscheduler.schedulers.blocking import BlockingScheduler
 from dotenv import load_dotenv
 import matplotlib.pyplot as plt
 from io import BytesIO
-from sympy import symbols, simplify, diff, integrate
+from sympy import symbols
 from atproto import Client, models
 from apscheduler.events import EVENT_JOB_EXECUTED
 
@@ -17,53 +17,25 @@ BLUESKY_PASSWORD = os.getenv("BLUESKY_PASSWORD")
 
 class MathProblemGenerator:
     def __init__(self):
-        self.problem_types = {
-            "addition": self.generate_addition_problem,
-            "subtraction": self.generate_subtraction_problem,
-            "multiplication": self.generate_multiplication_problem,
-            "derivative": self.generate_derivative_problem,
-            "algebra": self.generate_algebra_problem,
-        }
+        self.problem_generators = [self.generate_complex_number_problem]
 
-    def generate_addition_problem(self):
-        a, b = random.randint(1, 100), random.randint(1, 100)
-        problem = f"{a} + {b} = ?"
-        solution = a + b
-        return problem, solution
+    def generate_complex_number_problem(self):
+        operation = random.choice(["+", "-"])
+        a_real, a_imag = random.randint(1, 10), random.randint(1, 10)
+        b_real, b_imag = random.randint(1, 10), random.randint(1, 10)
 
-    def generate_subtraction_problem(self):
-        a, b = random.randint(1, 100), random.randint(1, 100)
-        problem = f"{a} - {b} = ?"
-        solution = a - b
-        return problem, solution
+        a = complex(a_real, a_imag)
+        b = complex(b_real, b_imag)
 
-    def generate_multiplication_problem(self):
-        a, b = random.randint(1, 12), random.randint(1, 12)
-        problem = f"{a} \u00d7 {b} = ?"
-        solution = a * b
-        return problem, solution
+        problem = f"({a_real} + {a_imag}i) {operation} ({b_real} + {b_imag}i) = ?"
+        solution = a + b if operation == "+" else a - b
+        return problem, f"{solution.real} + {solution.imag}i"
 
-    def generate_derivative_problem(self):
-        x = symbols('x')
-        expr = random.choice([x**2, x**3, x**4, x**5 + 3*x**2 - 5])
-        problem = f"Find the derivative of: {expr}"
-        solution = diff(expr, x)
-        return problem, str(solution)
-
-    def generate_algebra_problem(self):
-        x = symbols('x')
-        expr = random.choice([2*x + 3 - 5, x**2 - 4*x + 4, 3*x - 7])
-        problem = f"Simplify the expression: {expr}"
-        solution = simplify(expr)
-        return problem, str(solution)
-
-    def generate_problems(self, count=5, problem_type="addition"):
-        if problem_type not in self.problem_types:
-            raise ValueError(f"Unsupported problem type: {problem_type}")
-
+    def generate_problems(self, count=5):
         problems = []
         for _ in range(count):
-            problem, solution = self.problem_types[problem_type]()
+            generator = random.choice(self.problem_generators)
+            problem, solution = generator()
             problems.append((problem, solution))
         return problems
 
@@ -85,7 +57,7 @@ class MathProblemGenerator:
 # Function to periodically generate and post problems
 def generate_and_post_math_problems():
     generator = MathProblemGenerator()
-    problems = generator.generate_problems(count=5, problem_type="derivative")
+    problems = generator.generate_problems(count=5)
     output_path = "math_problems.png"
     solutions_path = "solutions.txt"
 
@@ -122,7 +94,6 @@ def generate_and_post_math_problems():
             reply_to=models.AppBskyFeedPost.ReplyRef(parent=root_post_ref, root=root_post_ref),
         )
     )
-
 
 def job_listener(event):
     if event.code == EVENT_JOB_EXECUTED:
