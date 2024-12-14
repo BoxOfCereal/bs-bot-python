@@ -103,6 +103,6 @@ if __name__ == "__main__":
     scheduler = BlockingScheduler()
 
     # Generate and render problems every hour
-    scheduler.add_job(generate_and_post_math_problems, "cron", minute="*")
+    scheduler.add_job(generate_and_post_math_problems, "cron", hour="23")
     scheduler.add_listener(job_listener, EVENT_JOB_EXECUTED)
     scheduler.start()
